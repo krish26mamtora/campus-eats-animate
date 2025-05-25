@@ -15,13 +15,27 @@ export interface MenuItem {
 export interface CartItem extends MenuItem {
   quantity: number;
   customizations?: {
-    spiceLevel?: 'Low' | 'Medium' | 'High';
+    // Snacks
+    spiceLevel?: 'Low' | 'Medium' | 'High' | 'Mild' | 'Spicy';
     addCheese?: boolean;
-    portionSize?: 'Half' | 'Full';
-    addExtraCurry?: boolean;
-    sugarLevel?: 'No' | 'Low' | 'Normal';
-    iceLevel?: 'No' | 'Normal' | 'Extra';
+    noOnion?: boolean;
+    extraChilli?: boolean;
+    sauces?: string[];
+    portionSize?: 'Regular' | 'Large' | 'Half' | 'Full';
+    
+    // Main Course
+    excludeIngredients?: string[];
+    addExtraGravy?: boolean;
+    addOns?: string[];
+    addRaitaPapad?: string[];
+    
+    // Beverages
+    iceLevel?: 'No Ice' | 'Normal' | 'Extra Ice';
+    sugarLevel?: 'No Sugar' | 'Less' | 'Normal' | 'Extra';
     addLemon?: boolean;
+    addMintGinger?: string[];
+    cupSize?: 'Small' | 'Medium' | 'Large';
+    toppings?: string[];
   };
   customizationPrice?: number;
 }
@@ -40,7 +54,7 @@ interface CartState {
   items: CartItem[];
   orders: Order[];
   addItem: (item: MenuItem) => void;
-  addItemWithCustomization: (item: MenuItem, customizations: any) => void;
+  addItemWithCustomization: (item: MenuItem, customizations: any, extraPrice?: number) => void;
   updateQuantity: (id: string, quantity: number, customizations?: any) => void;
   removeItem: (id: string, customizations?: any) => void;
   clearCart: () => void;
@@ -52,21 +66,6 @@ interface CartState {
 
 const generateOrderId = () => {
   return 'ORD' + Math.random().toString(36).substr(2, 9).toUpperCase();
-};
-
-const calculateCustomizationPrice = (customizations: any, category: string) => {
-  let extraPrice = 0;
-  
-  if (category === 'snacks') {
-    if (customizations.addCheese) extraPrice += 10;
-  } else if (category === 'main-course') {
-    if (customizations.portionSize === 'Half') extraPrice -= 20;
-    if (customizations.addExtraCurry) extraPrice += 15;
-  } else if (category === 'beverages') {
-    if (customizations.addLemon) extraPrice += 5;
-  }
-  
-  return extraPrice;
 };
 
 const getCartItemKey = (item: MenuItem, customizations?: any) => {
@@ -98,9 +97,8 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      addItemWithCustomization: (item, customizations) => {
+      addItemWithCustomization: (item, customizations, extraPrice = 0) => {
         const items = get().items;
-        const customizationPrice = calculateCustomizationPrice(customizations, item.category);
         const itemKey = getCartItemKey(item, customizations);
         
         const existingItemIndex = items.findIndex(cartItem => 
@@ -121,7 +119,7 @@ export const useCartStore = create<CartState>()(
               ...item, 
               quantity: 1, 
               customizations,
-              customizationPrice 
+              customizationPrice: extraPrice 
             }] 
           });
         }
