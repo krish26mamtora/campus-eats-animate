@@ -1,7 +1,5 @@
 # 🏫 Campus Canteen
 
-![Campus Canteen](https://i.imgur.com/XYZ123.png)
-
 A modern, animated food ordering system designed specifically for campus environments. Built with React, TypeScript, and Framer Motion for smooth animations and transitions.
 
 ## ✨ Features
@@ -108,27 +106,7 @@ campus-canteen/
 - **OrderFilters**: Comprehensive filtering for orders
 - **ThemeProvider**: Manages theme state and preferences
 
-## 🎯 Future Enhancements
-
-- **User Authentication**: Login and registration functionality
-- **Payment Integration**: Real payment processing
-- **Push Notifications**: Order status updates
-- **Favorites System**: Save favorite food items
-- **Social Sharing**: Share food items with friends
-- **Loyalty Program**: Rewards for frequent customers
-- **Multilingual Support**: Support for multiple languages
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👥 Contributors
 
-- [Your Name](https://github.com/yourusername)
+- https://github.com/krish26mamtora
 
-## 🙏 Acknowledgements
-
-- [Framer Motion](https://www.framer.com/motion/) for the amazing animation library
-- [TailwindCSS](https://tailwindcss.com/) for the utility-first CSS framework
-- [Lucide Icons](https://lucide.dev/) for the beautiful icons
-- [React](https://reactjs.org/) for the frontend library
