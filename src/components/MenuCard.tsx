@@ -2,17 +2,23 @@
 import { motion } from 'framer-motion';
 import { useCartStore, MenuItem } from '../store/useCartStore';
 import { toast } from 'sonner';
+import { Settings } from 'lucide-react';
 
 interface MenuCardProps {
   item: MenuItem;
+  onCustomize: (item: MenuItem) => void;
 }
 
-const MenuCard = ({ item }: MenuCardProps) => {
+const MenuCard = ({ item, onCustomize }: MenuCardProps) => {
   const addItem = useCartStore(state => state.addItem);
 
   const handleAddToCart = () => {
     addItem(item);
     toast.success(`${item.name} added to cart!`);
+  };
+
+  const handleCustomize = () => {
+    onCustomize(item);
   };
 
   return (
@@ -45,12 +51,24 @@ const MenuCard = ({ item }: MenuCardProps) => {
         <h3 className="font-bold text-lg text-gray-800 mb-2">{item.name}</h3>
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{item.description}</p>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <span className="text-2xl font-bold text-orange-600">₹{item.price}</span>
+        </div>
+
+        <div className="flex space-x-2">
+          <motion.button
+            onClick={handleCustomize}
+            className="flex-1 bg-white border border-orange-500 text-orange-600 px-3 py-2 rounded-lg font-medium hover:bg-orange-50 transition-all duration-200 flex items-center justify-center space-x-1"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Settings className="h-4 w-4" />
+            <span>Customize</span>
+          </motion.button>
           
           <motion.button
             onClick={handleAddToCart}
-            className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200"
+            className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

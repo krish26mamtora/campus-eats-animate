@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { menuItems } from '../data/menuData';
@@ -7,6 +6,8 @@ import CategoryFilter from '../components/CategoryFilter';
 import SearchBar from '../components/SearchBar';
 import CartIcon from '../components/CartIcon';
 import CartDrawer from '../components/CartDrawer';
+import CustomizationModal from '../components/CustomizationModal';
+import { MenuItem } from '../store/useCartStore';
 
 const categories = [
   { key: 'all', label: 'All Items', icon: '🍽️' },
@@ -20,6 +21,10 @@ const Menu = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'non-veg'>('all');
+  const [customizationModal, setCustomizationModal] = useState<{
+    isOpen: boolean;
+    item: MenuItem | null;
+  }>({ isOpen: false, item: null });
 
   const filteredItems = menuItems.filter(item => {
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
@@ -31,6 +36,14 @@ const Menu = () => {
     
     return matchesCategory && matchesSearch && matchesVegFilter;
   });
+
+  const handleCustomize = (item: MenuItem) => {
+    setCustomizationModal({ isOpen: true, item });
+  };
+
+  const closeCustomizationModal = () => {
+    setCustomizationModal({ isOpen: false, item: null });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
@@ -102,7 +115,7 @@ const Menu = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <MenuCard item={item} />
+                <MenuCard item={item} onCustomize={handleCustomize} />
               </motion.div>
             ))}
           </motion.div>
@@ -111,6 +124,11 @@ const Menu = () => {
 
       <CartIcon onClick={() => setIsCartOpen(true)} />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CustomizationModal
+        item={customizationModal.item}
+        isOpen={customizationModal.isOpen}
+        onClose={closeCustomizationModal}
+      />
     </div>
   );
 };

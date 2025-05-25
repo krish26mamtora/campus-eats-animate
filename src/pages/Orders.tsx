@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { useCartStore, Order } from '../store/useCartStore';
 import { Clock, CheckCircle, Package } from 'lucide-react';
@@ -37,6 +36,27 @@ const Orders = () => {
       case 'completed':
         return 'bg-green-50 text-green-700 border-green-200';
     }
+  };
+
+  const formatCustomizations = (customizations: any) => {
+    if (!customizations) return '';
+    
+    const parts = [];
+    if (customizations.spiceLevel) parts.push(`${customizations.spiceLevel} Spice`);
+    if (customizations.addCheese) parts.push('Extra Cheese');
+    if (customizations.portionSize) parts.push(`${customizations.portionSize} Portion`);
+    if (customizations.addExtraCurry) parts.push('Extra Curry');
+    if (customizations.sugarLevel) parts.push(`${customizations.sugarLevel} Sugar`);
+    if (customizations.iceLevel) parts.push(`${customizations.iceLevel} Ice`);
+    if (customizations.addLemon) parts.push('With Lemon');
+    
+    return parts.join(', ');
+  };
+
+  const getItemDisplayPrice = (item: any) => {
+    const basePrice = item.price;
+    const customizationPrice = item.customizationPrice || 0;
+    return basePrice + customizationPrice;
   };
 
   return (
@@ -88,7 +108,7 @@ const Orders = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-gray-800">
-                        Order #{order.id.slice(-6)}
+                        Order #{order.orderId}
                       </h3>
                       <p className="text-gray-500 text-sm">
                         {new Date(order.timestamp).toLocaleString()}
@@ -102,8 +122,8 @@ const Orders = () => {
                   </div>
 
                   <div className="space-y-3 mb-4">
-                    {order.items.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
+                    {order.items.map((item, itemIndex) => (
+                      <div key={`${item.id}_${itemIndex}`} className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -111,12 +131,17 @@ const Orders = () => {
                         />
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-800">{item.name}</h4>
+                          {item.customizations && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatCustomizations(item.customizations)}
+                            </p>
+                          )}
                           <p className="text-sm text-gray-600">
-                            ₹{item.price} × {item.quantity}
+                            ₹{getItemDisplayPrice(item)} × {item.quantity}
                           </p>
                         </div>
                         <span className="font-bold text-orange-600">
-                          ₹{item.price * item.quantity}
+                          ₹{getItemDisplayPrice(item) * item.quantity}
                         </span>
                       </div>
                     ))}
