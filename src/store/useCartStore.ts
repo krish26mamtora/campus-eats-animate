@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -46,8 +45,13 @@ export interface Order {
   items: CartItem[];
   total: number;
   timestamp: number;
-  status: 'preparing' | 'ready' | 'completed';
+  status: 'placed' | 'preparing' | 'ready' | 'out-for-delivery' | 'delivered' | 'cancelled';
   placedAt: string;
+  estimatedTime?: number;
+  deliveryAddress?: string;
+  paymentMethod?: 'cash' | 'card' | 'upi';
+  rating?: number;
+  feedback?: string;
 }
 
 interface CartState {
@@ -58,10 +62,14 @@ interface CartState {
   updateQuantity: (id: string, quantity: number, customizations?: any) => void;
   removeItem: (id: string, customizations?: any) => void;
   clearCart: () => void;
-  placeOrder: () => string;
+  placeOrder: (deliveryAddress?: string, paymentMethod?: string) => string;
   getTotalItems: () => number;
   getTotalPrice: () => number;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  cancelOrder: (orderId: string) => void;
+  reorderItems: (orderId: string) => void;
+  rateOrder: (orderId: string, rating: number, feedback?: string) => void;
+  generateDummyOrders: () => void;
 }
 
 const generateOrderId = () => {
@@ -154,7 +162,7 @@ export const useCartStore = create<CartState>()(
         set({ items: [] });
       },
       
-      placeOrder: () => {
+      placeOrder: (deliveryAddress = "Campus Hostel Block A", paymentMethod = "upi") => {
         const items = get().items;
         const total = get().getTotalPrice();
         const orderId = generateOrderId();
@@ -164,8 +172,11 @@ export const useCartStore = create<CartState>()(
           items: [...items],
           total,
           timestamp: Date.now(),
-          status: 'preparing',
-          placedAt: new Date().toISOString()
+          status: 'placed',
+          placedAt: new Date().toISOString(),
+          estimatedTime: Math.floor(Math.random() * 30) + 15, // 15-45 minutes
+          deliveryAddress,
+          paymentMethod: paymentMethod as any
         };
         
         set({
@@ -173,10 +184,18 @@ export const useCartStore = create<CartState>()(
           items: []
         });
 
-        // Auto-update order status after 2 minutes
+        // Auto-update order status progression
+        setTimeout(() => {
+          get().updateOrderStatus(orderId, 'preparing');
+        }, 30000); // 30 seconds
+
         setTimeout(() => {
           get().updateOrderStatus(orderId, 'ready');
         }, 120000); // 2 minutes
+
+        setTimeout(() => {
+          get().updateOrderStatus(orderId, 'out-for-delivery');
+        }, 180000); // 3 minutes
 
         return orderId;
       },
@@ -187,6 +206,110 @@ export const useCartStore = create<CartState>()(
             order.orderId === orderId ? { ...order, status } : order
           )
         });
+      },
+
+      cancelOrder: (orderId) => {
+        set({
+          orders: get().orders.map(order =>
+            order.orderId === orderId ? { ...order, status: 'cancelled' } : order
+          )
+        });
+      },
+
+      reorderItems: (orderId) => {
+        const order = get().orders.find(o => o.orderId === orderId);
+        if (order) {
+          set({ items: [...order.items] });
+        }
+      },
+
+      rateOrder: (orderId, rating, feedback) => {
+        set({
+          orders: get().orders.map(order =>
+            order.orderId === orderId ? { ...order, rating, feedback } : order
+          )
+        });
+      },
+
+      generateDummyOrders: () => {
+        const dummyOrders: Order[] = [
+          {
+            id: '1',
+            orderId: 'ORD123ABC',
+            items: [
+              {
+                id: '1',
+                name: 'Veg Burger',
+                description: 'Delicious veggie burger',
+                price: 80,
+                image: '/placeholder.svg',
+                category: 'snacks',
+                isVeg: true,
+                quantity: 2,
+                customizations: { spiceLevel: 'Medium', addCheese: true }
+              }
+            ],
+            total: 170,
+            timestamp: Date.now() - 86400000, // 1 day ago
+            status: 'delivered',
+            placedAt: new Date(Date.now() - 86400000).toISOString(),
+            estimatedTime: 25,
+            deliveryAddress: 'Campus Hostel Block A',
+            paymentMethod: 'upi',
+            rating: 5
+          },
+          {
+            id: '2',
+            orderId: 'ORD456DEF',
+            items: [
+              {
+                id: '2',
+                name: 'Paneer Tikka',
+                description: 'Grilled paneer cubes',
+                price: 120,
+                image: '/placeholder.svg',
+                category: 'main-course',
+                isVeg: true,
+                quantity: 1,
+                customizations: { spiceLevel: 'Spicy', portionSize: 'Full' }
+              }
+            ],
+            total: 120,
+            timestamp: Date.now() - 172800000, // 2 days ago
+            status: 'delivered',
+            placedAt: new Date(Date.now() - 172800000).toISOString(),
+            estimatedTime: 35,
+            deliveryAddress: 'Campus Library',
+            paymentMethod: 'cash',
+            rating: 4
+          },
+          {
+            id: '3',
+            orderId: 'ORD789GHI',
+            items: [
+              {
+                id: '3',
+                name: 'Masala Chai',
+                description: 'Hot spiced tea',
+                price: 20,
+                image: '/placeholder.svg',
+                category: 'beverages',
+                isVeg: true,
+                quantity: 3,
+                customizations: { sugarLevel: 'Normal', cupSize: 'Medium' }
+              }
+            ],
+            total: 60,
+            timestamp: Date.now() - 259200000, // 3 days ago
+            status: 'delivered',
+            placedAt: new Date(Date.now() - 259200000).toISOString(),
+            estimatedTime: 10,
+            deliveryAddress: 'Campus Canteen',
+            paymentMethod: 'card'
+          }
+        ];
+        
+        set({ orders: [...dummyOrders, ...get().orders] });
       },
       
       getTotalItems: () => {
