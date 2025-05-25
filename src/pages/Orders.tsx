@@ -1,12 +1,12 @@
-
 import { motion } from 'framer-motion';
 import { useCartStore, Order } from '../store/useCartStore';
-import { Clock, CheckCircle, Package, Truck, Star, RotateCcw, X, Filter, MapPin, CreditCard, Timer } from 'lucide-react';
+import { Clock, CheckCircle, Package, Truck, Star, RotateCcw, X, Filter, MapPin, CreditCard, Timer, ThumbsUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import OrderStatusUpdateModal from '../components/OrderStatusUpdateModal';
 import OrderFilters from '../components/OrderFilters';
 import RecentOrdersSummary from '../components/RecentOrdersSummary';
 import OrderAnalytics from '../components/OrderAnalytics';
+import RatingModal from '../components/RatingModal';
 import { useToast } from '@/hooks/use-toast';
 
 interface FilterState {
@@ -16,19 +16,35 @@ interface FilterState {
   paymentMethod: string;
 }
 
+type SortOption = 'newest' | 'oldest' | 'price-high' | 'price-low';
+
 const Orders = () => {
-  const { orders, updateOrderStatus, cancelOrder, reorderItems, rateOrder, generateDummyOrders } = useCartStore();
+  const { orders, updateOrderStatus, cancelOrder, reorderItems, rateOrder, generateDummyOrders, markOrderReceived } = useCartStore();
   const [filteredOrders, setFilteredOrders] = useState<Order[]>(orders);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingOrderId, setRatingOrderId] = useState<string>('');
   const [filters, setFilters] = useState<FilterState>({
     status: 'all',
     priceRange: [0, 1000],
     dateRange: 'all',
     paymentMethod: 'all'
   });
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'price-high' | 'price-low'>('newest');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const { toast } = useToast();
+
+  // Generate random locations for orders
+  const locations = [
+    'Campus Hostel Block A',
+    'Campus Library',
+    'Engineering Building',
+    'Main Cafeteria',
+    'Sports Complex',
+    'Admin Building',
+    'Computer Lab',
+    'Auditorium'
+  ];
 
   useEffect(() => {
     if (orders.length === 0) {
@@ -133,17 +149,17 @@ const Orders = () => {
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
       case 'placed':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700';
       case 'preparing':
-        return 'bg-orange-50 text-orange-700 border-orange-200';
+        return 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700';
       case 'ready':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700';
       case 'out-for-delivery':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700';
       case 'delivered':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700';
       case 'cancelled':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700';
     }
   };
 
@@ -173,8 +189,18 @@ const Orders = () => {
     });
   };
 
-  const handleRating = (orderId: string, rating: number) => {
-    rateOrder(orderId, rating);
+  const handleMarkReceived = (orderId: string) => {
+    markOrderReceived(orderId);
+    setRatingOrderId(orderId);
+    setShowRatingModal(true);
+    toast({
+      title: "Order Received",
+      description: "Please rate your experience!",
+    });
+  };
+
+  const handleRatingSubmit = (rating: number, feedback: string) => {
+    rateOrder(ratingOrderId, rating, feedback);
     toast({
       title: "Rating Submitted",
       description: "Thank you for your feedback!",
@@ -203,8 +229,16 @@ const Orders = () => {
     return basePrice + customizationPrice;
   };
 
+  const getRandomLocation = () => {
+    return locations[Math.floor(Math.random() * locations.length)];
+  };
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort as SortOption);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800 py-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -212,8 +246,8 @@ const Orders = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">My Orders 📋</h1>
-          <p className="text-xl text-gray-600">Track and manage your delicious meals</p>
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">My Orders 📋</h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300">Track and manage your delicious meals</p>
         </motion.div>
 
         {/* Analytics Dashboard */}
@@ -227,7 +261,7 @@ const Orders = () => {
           filters={filters}
           onFiltersChange={setFilters}
           sortBy={sortBy}
-          onSortChange={setSortBy}
+          onSortChange={handleSortChange}
         />
 
         {filteredOrders.length === 0 ? (
@@ -238,10 +272,10 @@ const Orders = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="text-6xl mb-6">📱</div>
-            <h3 className="text-2xl font-medium text-gray-600 mb-4">
+            <h3 className="text-2xl font-medium text-gray-600 dark:text-gray-300 mb-4">
               {orders.length === 0 ? "No orders yet!" : "No orders match your filters"}
             </h3>
-            <p className="text-gray-500 mb-8">
+            <p className="text-gray-500 dark:text-gray-400 mb-8">
               {orders.length === 0 
                 ? "Order some delicious food from our menu to see your orders here."
                 : "Try adjusting your filters to see more orders."
@@ -262,7 +296,7 @@ const Orders = () => {
             {filteredOrders.map((order, index) => (
               <motion.div
                 key={order.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -271,16 +305,16 @@ const Orders = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <div>
-                        <h3 className="text-lg font-bold text-gray-800">
-                          Order #{order.orderId}
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                          Order #{order.orderId || `ORD${Math.random().toString(36).substr(2, 6).toUpperCase()}`}
                         </h3>
-                        <p className="text-gray-500 text-sm">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">
                           {new Date(order.timestamp).toLocaleString()}
                         </p>
                       </div>
                       
                       {order.estimatedTime && order.status !== 'delivered' && order.status !== 'cancelled' && (
-                        <div className="flex items-center space-x-1 text-orange-600">
+                        <div className="flex items-center space-x-1 text-orange-600 dark:text-orange-400">
                           <Timer className="h-4 w-4" />
                           <span className="text-sm font-medium">{order.estimatedTime} min</span>
                         </div>
@@ -299,7 +333,7 @@ const Orders = () => {
                             setSelectedOrder(order);
                             setShowStatusModal(true);
                           }}
-                          className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                          className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                           title="Update Status"
                         >
                           <Filter className="h-4 w-4" />
@@ -309,14 +343,14 @@ const Orders = () => {
                   </div>
 
                   {/* Order Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm text-gray-600">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center space-x-2">
                       <MapPin className="h-4 w-4" />
-                      <span>{order.deliveryAddress}</span>
+                      <span>{order.deliveryAddress || getRandomLocation()}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CreditCard className="h-4 w-4" />
-                      <span className="capitalize">{order.paymentMethod}</span>
+                      <span className="capitalize">{order.paymentMethod || 'upi'}</span>
                     </div>
                     {order.rating && (
                       <div className="flex items-center space-x-1">
@@ -326,38 +360,39 @@ const Orders = () => {
                     )}
                   </div>
 
+                  {/* ... keep existing code (order items display) */}
                   <div className="space-y-3 mb-4">
                     {order.items.map((item, itemIndex) => (
-                      <div key={`${item.id}_${itemIndex}`} className="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
+                      <div key={`${item.id}_${itemIndex}`} className="flex items-center space-x-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
                         <img
                           src={item.image}
                           alt={item.name}
                           className="w-12 h-12 object-cover rounded-lg"
                         />
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-800">{item.name}</h4>
+                          <h4 className="font-medium text-gray-800 dark:text-white">{item.name}</h4>
                           {item.customizations && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                               {formatCustomizations(item.customizations)}
                             </p>
                           )}
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
                             ₹{getItemDisplayPrice(item)} × {item.quantity}
                           </p>
                         </div>
-                        <span className="font-bold text-orange-600">
+                        <span className="font-bold text-orange-600 dark:text-orange-400">
                           ₹{getItemDisplayPrice(item) * item.quantity}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-t pt-4 flex justify-between items-center">
+                  <div className="border-t dark:border-gray-700 pt-4 flex justify-between items-center">
                     <div className="flex space-x-3">
                       {(order.status === 'placed' || order.status === 'preparing') && (
                         <button
                           onClick={() => handleCancelOrder(order.orderId)}
-                          className="flex items-center space-x-1 px-3 py-2 text-red-600 hover:text-red-700 transition-colors"
+                          className="flex items-center space-x-1 px-3 py-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
                         >
                           <X className="h-4 w-4" />
                           <span className="text-sm">Cancel</span>
@@ -366,29 +401,26 @@ const Orders = () => {
                       
                       <button
                         onClick={() => handleReorder(order.orderId)}
-                        className="flex items-center space-x-1 px-3 py-2 text-blue-600 hover:text-blue-700 transition-colors"
+                        className="flex items-center space-x-1 px-3 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                       >
                         <RotateCcw className="h-4 w-4" />
                         <span className="text-sm">Reorder</span>
                       </button>
 
                       {order.status === 'delivered' && !order.rating && (
-                        <div className="flex items-center space-x-1">
-                          <span className="text-sm text-gray-600">Rate:</span>
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              onClick={() => handleRating(order.orderId, star)}
-                              className="p-1 text-gray-300 hover:text-yellow-400 transition-colors"
-                            >
-                              <Star className="h-4 w-4" />
-                            </button>
-                          ))}
-                        </div>
+                        <motion.button
+                          onClick={() => handleMarkReceived(order.orderId)}
+                          className="flex items-center space-x-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <ThumbsUp className="h-4 w-4" />
+                          <span className="text-sm">Mark Received</span>
+                        </motion.button>
                       )}
                     </div>
                     
-                    <span className="text-2xl font-bold text-orange-600">₹{order.total}</span>
+                    <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">₹{order.total}</span>
                   </div>
                 </div>
               </motion.div>
@@ -402,6 +434,19 @@ const Orders = () => {
             order={selectedOrder}
             onUpdateStatus={handleStatusUpdate}
             onClose={() => setShowStatusModal(false)}
+          />
+        )}
+
+        {/* Rating Modal */}
+        {showRatingModal && (
+          <RatingModal
+            isOpen={showRatingModal}
+            onClose={() => setShowRatingModal(false)}
+            onSubmit={handleRatingSubmit}
+            orderDetails={{
+              orderId: ratingOrderId,
+              items: orders.find(o => o.orderId === ratingOrderId)?.items.map(i => i.name) || []
+            }}
           />
         )}
       </div>

@@ -69,6 +69,7 @@ interface CartState {
   cancelOrder: (orderId: string) => void;
   reorderItems: (orderId: string) => void;
   rateOrder: (orderId: string, rating: number, feedback?: string) => void;
+  markOrderReceived: (orderId: string) => void;
   generateDummyOrders: () => void;
 }
 
@@ -227,6 +228,14 @@ export const useCartStore = create<CartState>()(
         set({
           orders: get().orders.map(order =>
             order.orderId === orderId ? { ...order, rating, feedback } : order
+          )
+        });
+      },
+
+      markOrderReceived: (orderId) => {
+        set({
+          orders: get().orders.map(order =>
+            order.orderId === orderId ? { ...order, status: 'delivered' } : order
           )
         });
       },
