@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar';
 import CartIcon from '../components/CartIcon';
 import CartDrawer from '../components/CartDrawer';
 import CustomizationModal from '../components/CustomizationModal';
+import FoodItemDetailsModal from '../components/FoodItemDetailsModal';
 import { MenuItem } from '../store/useCartStore';
 
 const categories = [
@@ -22,6 +23,11 @@ const Menu = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'non-veg'>('all');
   const [customizationModal, setCustomizationModal] = useState<{
+    isOpen: boolean;
+    item: MenuItem | null;
+  }>({ isOpen: false, item: null });
+  
+  const [detailsModal, setDetailsModal] = useState<{
     isOpen: boolean;
     item: MenuItem | null;
   }>({ isOpen: false, item: null });
@@ -44,9 +50,17 @@ const Menu = () => {
   const closeCustomizationModal = () => {
     setCustomizationModal({ isOpen: false, item: null });
   };
+  
+  const handleViewDetails = (item: MenuItem) => {
+    setDetailsModal({ isOpen: true, item });
+  };
+  
+  const closeDetailsModal = () => {
+    setDetailsModal({ isOpen: false, item: null });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -54,10 +68,10 @@ const Menu = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">
             Delicious Campus Food 🍕
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Fresh, tasty, and affordable meals made just for students. 
             Order now and satisfy your cravings!
           </p>
@@ -99,7 +113,7 @@ const Menu = () => {
           >
             <div className="text-6xl mb-4">😔</div>
             <h3 className="text-xl font-medium text-gray-600 mb-2">No items found</h3>
-            <p className="text-gray-500">Try adjusting your search or filters</p>
+            <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filters</p>
           </motion.div>
         ) : (
           <motion.div
@@ -115,7 +129,7 @@ const Menu = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <MenuCard item={item} onCustomize={handleCustomize} />
+                <MenuCard item={item} onCustomize={handleCustomize} onViewDetails={handleViewDetails} />
               </motion.div>
             ))}
           </motion.div>
@@ -128,6 +142,12 @@ const Menu = () => {
         item={customizationModal.item}
         isOpen={customizationModal.isOpen}
         onClose={closeCustomizationModal}
+      />
+      <FoodItemDetailsModal
+        item={detailsModal.item}
+        isOpen={detailsModal.isOpen}
+        onClose={closeDetailsModal}
+        onCustomize={handleCustomize}
       />
     </div>
   );

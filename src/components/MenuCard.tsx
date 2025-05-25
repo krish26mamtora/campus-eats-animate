@@ -7,9 +7,10 @@ import { Settings, Star, Clock, Flame, Leaf } from 'lucide-react';
 interface MenuCardProps {
   item: MenuItem;
   onCustomize: (item: MenuItem) => void;
+  onViewDetails: (item: MenuItem) => void;
 }
 
-const MenuCard = ({ item, onCustomize }: MenuCardProps) => {
+const MenuCard = ({ item, onCustomize, onViewDetails }: MenuCardProps) => {
   const addItem = useCartStore(state => state.addItem);
 
   // Generate dummy ratings and cooking time
@@ -48,12 +49,13 @@ const MenuCard = ({ item, onCustomize }: MenuCardProps) => {
 
   return (
     <motion.div
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 group"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 group cursor-pointer"
       whileHover={{ scale: 1.02, y: -5 }}
       whileTap={{ scale: 0.98 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      onClick={() => onViewDetails(item)}
     >
       <div className="relative overflow-hidden">
         <motion.img

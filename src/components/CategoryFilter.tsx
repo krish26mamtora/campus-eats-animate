@@ -16,8 +16,8 @@ const CategoryFilter = ({ categories, activeCategory, onCategoryChange }: Catego
           onClick={() => onCategoryChange(category.key)}
           className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
             activeCategory === category.key
-              ? 'bg-orange-500 text-white shadow-lg'
-              : 'bg-white text-gray-700 hover:bg-orange-50 border border-gray-200'
+              ? 'bg-orange-500 dark:bg-orange-600 text-white shadow-lg'
+              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 border border-gray-200 dark:border-gray-700'
           }`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

@@ -506,7 +506,7 @@ const CustomizationModal = ({ item, isOpen, onClose }: CustomizationModalProps) 
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto transition-colors duration-300"
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
@@ -515,10 +515,10 @@ const CustomizationModal = ({ item, isOpen, onClose }: CustomizationModalProps) 
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-gray-800">Customize Your Order</h2>
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white">Customize Your Order</h2>
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -531,20 +531,20 @@ const CustomizationModal = ({ item, isOpen, onClose }: CustomizationModalProps) 
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                   <div>
-                    <h3 className="font-medium text-gray-800">{item.name}</h3>
-                    <p className="text-orange-600 font-bold">₹{item.price + calculateExtraPrice()}</p>
+                    <h3 className="font-medium text-gray-800 dark:text-white">{item.name}</h3>
+                    <p className="text-orange-600 dark:text-orange-400 font-bold">₹{item.price + calculateExtraPrice()}</p>
                     {calculateExtraPrice() > 0 && (
-                      <p className="text-sm text-gray-500">Base: ₹{item.price} + Extras: ₹{calculateExtraPrice()}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Base: ₹{item.price} + Extras: ₹{calculateExtraPrice()}</p>
                     )}
                   </div>
                 </div>
 
                 {renderCustomizationOptions()}
 
-                <div className="flex space-x-3 pt-4 border-t">
+                <div className="flex space-x-3 pt-4 border-t dark:border-gray-700">
                   <button
                     onClick={onClose}
-                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     Cancel
                   </button>

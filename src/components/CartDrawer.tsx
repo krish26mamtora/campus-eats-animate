@@ -67,7 +67,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
             />
             
             <motion.div
-              className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-900 shadow-xl z-50 overflow-y-auto transition-colors duration-300"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -75,10 +75,10 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">Your Cart</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Your Cart</h2>
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -87,8 +87,8 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                 {items.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🛒</div>
-                    <p className="text-gray-500 text-lg mb-4">Your cart is empty</p>
-                    <p className="text-gray-400">Add some delicious items from our menu!</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">Your cart is empty</p>
+                    <p className="text-gray-400 dark:text-gray-500">Add some delicious items from our menu!</p>
                   </div>
                 ) : (
                   <>
@@ -96,7 +96,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                       {items.map((item, index) => (
                         <motion.div
                           key={`${item.id}_${JSON.stringify(item.customizations)}_${index}`}
-                          className="bg-gray-50 rounded-lg p-4"
+                          className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
                           layout
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -110,11 +110,11 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                             />
                             
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-gray-800 truncate">{item.name}</h3>
+                              <h4 className="font-medium text-gray-800 dark:text-white">{item.name}</h4>
                               <p className="text-orange-600 font-bold">₹{getItemDisplayPrice(item)}</p>
                               
                               {item.customizations && (
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   {formatCustomizations(item.customizations)}
                                 </p>
                               )}
@@ -123,16 +123,16 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                                 <div className="flex items-center space-x-2">
                                   <button
                                     onClick={() => updateQuantity(item.id, item.quantity - 1, item.customizations)}
-                                    className="p-1 hover:bg-white rounded transition-colors"
+                                    className="p-1 hover:bg-white dark:hover:bg-gray-700 rounded transition-colors"
                                   >
                                     <Minus className="h-4 w-4" />
                                   </button>
                                   
-                                  <span className="w-8 text-center font-medium">{item.quantity}</span>
+                                  <span className="w-8 text-center font-medium dark:text-white">{item.quantity}</span>
                                   
                                   <button
                                     onClick={() => updateQuantity(item.id, item.quantity + 1, item.customizations)}
-                                    className="p-1 hover:bg-white rounded transition-colors"
+                                    className="p-1 hover:bg-white dark:hover:bg-gray-700 rounded transition-colors"
                                   >
                                     <Plus className="h-4 w-4" />
                                   </button>
@@ -140,7 +140,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                                 
                                 <button
                                   onClick={() => removeItem(item.id, item.customizations)}
-                                  className="p-1 hover:bg-red-100 text-red-500 rounded transition-colors"
+                                  className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 rounded transition-colors"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </button>
@@ -148,7 +148,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                             </div>
                             
                             <div className="text-right">
-                              <p className="font-bold text-gray-800">₹{getItemDisplayPrice(item) * item.quantity}</p>
+                              <p className="font-bold text-gray-800 dark:text-white">₹{getItemDisplayPrice(item) * item.quantity}</p>
                             </div>
                           </div>
                         </motion.div>
@@ -157,8 +157,8 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
 
                     <div className="border-t pt-6">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-xl font-bold text-gray-800">Total</span>
-                        <span className="text-2xl font-bold text-orange-600">₹{getTotalPrice()}</span>
+                        <span className="text-xl font-bold text-gray-800 dark:text-white">Total</span>
+                        <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">₹{getTotalPrice()}</span>
                       </div>
                       
                       <div className="space-y-3">
@@ -173,7 +173,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                         
                         <button
                           onClick={clearCart}
-                          className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                          className="w-full border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                           Clear Cart
                         </button>
