@@ -110,3 +110,13 @@ campus-canteen/
 
 - https://github.com/krish26mamtora
 
+## Live Demo Try Now
+
+https://campus-eats-animate.vercel.app
+
+## Project video Demo 
+
+https://drive.google.com/drive/folders/1ds3Ojk5pbXhnBsEtpbX_FsPIwm5fcIiu?usp=sharing
+
+
+
